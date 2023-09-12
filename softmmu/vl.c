@@ -2805,7 +2805,9 @@ void qemu_init(int argc, char **argv, char **envp)
                 break;
             case QEMU_OPTION_intermediateDriver:
                 printf("switch case dorito");
+                /*Those are within the /include/intermediateDriver/intermediateDriver.h*/
                 intermediateDriver = true;
+                targetNIC = qemu_find_opts("idr");
                 break;
 #ifdef CONFIG_LIBISCSI
             case QEMU_OPTION_iscsi:

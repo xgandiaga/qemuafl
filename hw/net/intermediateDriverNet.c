@@ -135,7 +135,17 @@
 
 
 void intermediateDriver_init(NICInfo *nd, uint32_t base, qemu_irq irq)
-{
+{   
+    /**
+     * DeviceState:
+     * @realized: Indicates whether the device has been fully constructed.
+     *            When accessed outside big qemu lock, must be accessed with
+     *            qatomic_load_acquire()
+     * @reset: ResettableState for the device; handled by Resettable interface.
+     *
+     * This structure should not be accessed directly.  We declare it here
+     * so that it can be embedded in individual device state structures.
+    */
     DeviceState *dev;
     SysBusDevice *s;
 
@@ -147,12 +157,15 @@ void intermediateDriver_init(NICInfo *nd, uint32_t base, qemu_irq irq)
     qdev_set_nic_properties(dev, nd);
     s = SYS_BUS_DEVICE(dev);
     
+    /**Dunno, gotta investigate*/
     sysbus_realize_and_unref(s, &error_fatal);
+    
+    /*Maps device to base ethernet address*/
     sysbus_mmio_map(s, 0, base);
+
+    /*Connects an interrupt to the device*/
     sysbus_connect_irq(s, 0, irq);
 }
-
-void map_to_memory
 
 void read_memory_to_NIC
 
