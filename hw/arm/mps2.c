@@ -48,6 +48,7 @@
 #include "hw/watchdog/cmsdk-apb-watchdog.h"
 #include "hw/qdev-clock.h"
 #include "qom/object.h"
+#include "intermediateDriver/intermediateDriver.h"
 
 typedef enum MPS2FPGAType {
     FPGA_AN385,
@@ -412,12 +413,16 @@ static void mps2_common_init(MachineState *machine)
     }
     create_unimplemented_device("i2s", 0x40024000, 0x400);
 
-    /* In hardware this is a LAN9220; the LAN9118 is software compatible
-     * except that it doesn't support the checksum-offload feature.
-     */
-    lan9118_init(&nd_table[0], mmc->ethernet_base,
-                 qdev_get_gpio_in(armv7m,
-                                  mmc->fpga_type == FPGA_AN511 ? 47 : 13));
+    if (intermediateDriver == false) {
+        /* In hardware this is a LAN9220; the LAN9118 is software compatible
+        * except that it doesn't support the checksum-offload feature.
+        */
+        lan9118_init(&nd_table[0], mmc->ethernet_base,
+                qdev_get_gpio_in(armv7m,
+                                mmc->fpga_type == FPGA_AN511 ? 47 : 13));
+    } else {
+        printf("dorito, no ethernet\n");
+    }
 
     system_clock_scale = NANOSECONDS_PER_SECOND / SYSCLK_FRQ;
 

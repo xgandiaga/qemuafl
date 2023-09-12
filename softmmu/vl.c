@@ -2800,7 +2800,7 @@ void qemu_init(int argc, char **argv, char **envp)
             case QEMU_OPTION_net:
                 default_net = 0;
                 if (net_client_parse(qemu_find_opts("net"), optarg) == -1) {
-                    exit(1);
+                    exit(1); /*If there is an error with the parse, this returns 1*/
                 }
                 break;
             case QEMU_OPTION_intermediateDriver:
@@ -3489,11 +3489,14 @@ void qemu_init(int argc, char **argv, char **envp)
 
     configure_rtc(qemu_find_opts_singleton("rtc"));
 
+    /*its either this one*/
+    /*select machine selects a target board, for example, mps2*/
     qemu_create_machine(select_machine());
 
     suspend_mux_open();
 
     qemu_disable_default_devices();
+    /*or this one*/
     qemu_create_default_devices();
     qemu_create_early_backends();
 
