@@ -122,6 +122,8 @@
 #include "sysemu/iothread.h"
 #include "qemu/guest-random.h"
 
+#include "include/intermediateDriver/intermediateDriver.h"
+
 #define MAX_VIRTIO_CONSOLES 1
 
 typedef struct BlockdevOptionsQueueEntry {
@@ -2802,7 +2804,8 @@ void qemu_init(int argc, char **argv, char **envp)
                 }
                 break;
             case QEMU_OPTION_intermediateDriver:
-                printf("working");
+                printf("switch case dorito");
+                intermediateDriver = true;
                 break;
 #ifdef CONFIG_LIBISCSI
             case QEMU_OPTION_iscsi:
