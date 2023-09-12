@@ -3,6 +3,7 @@
         "*.def": "c",
         "*.inc": "c",
         "mps2-scc.h": "c",
-        "lan9118.h": "c"
+        "lan9118.h": "c",
+        "colo.h": "c"
     }
 }

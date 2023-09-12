@@ -421,7 +421,7 @@ static void mps2_common_init(MachineState *machine)
                 qdev_get_gpio_in(armv7m,
                                 mmc->fpga_type == FPGA_AN511 ? 47 : 13));
     } else {
-        printf("dorito, no ethernet\n");
+        printf("dorito, no direct NIC now\n");
         intermediateDriver_init(&nd_table[0], mmc->ethernet_base,
                 qdev_get_gpio_in(armv7m,
                                 mmc->fpga_type == FPGA_AN511 ? 47 : 13));

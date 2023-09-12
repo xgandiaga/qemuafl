@@ -134,6 +134,43 @@
 
 
 
+/* The FPGA images have an odd combination of different RAMs,
+     * because in hardware they are different implementations and
+     * connected to different buses, giving varying performance/size
+     * tradeoffs. For QEMU they're all just RAM, though. We arbitrarily
+     * call the 16MB our "system memory", as it's the largest lump.
+     *
+     * AN385/AN386/AN511:
+     *  0x21000000 .. 0x21ffffff : PSRAM (16MB)
+     * AN385/AN386/AN500:
+     *  0x00000000 .. 0x003fffff : ZBT SSRAM1
+     *  0x00400000 .. 0x007fffff : mirror of ZBT SSRAM1
+     *  0x20000000 .. 0x203fffff : ZBT SSRAM 2&3
+     *  0x20400000 .. 0x207fffff : mirror of ZBT SSRAM 2&3
+     * AN385/AN386 only:
+     *  0x01000000 .. 0x01003fff : block RAM (16K)
+     *  0x01004000 .. 0x01007fff : mirror of above
+     *  0x01008000 .. 0x0100bfff : mirror of above
+     *  0x0100c000 .. 0x0100ffff : mirror of above
+     * AN511 only:
+     *  0x00000000 .. 0x0003ffff : FPGA block RAM
+     *  0x00400000 .. 0x007fffff : ZBT SSRAM1
+     *  0x20000000 .. 0x2001ffff : SRAM
+     *  0x20400000 .. 0x207fffff : ZBT SSRAM 2&3
+     * AN500 only:
+     *  0x60000000 .. 0x60ffffff : PSRAM (16MB)
+     *
+     * The AN385/AN386 has a feature where the lowest 16K can be mapped
+     * either to the bottom of the ZBT SSRAM1 or to the block RAM.
+     * This is of no use for QEMU so we don't implement it (as if
+     * zbt_boot_ctrl is always zero).
+     */
+
+/*This means a new device can be mapped lower than 0x60ffffff without affecting the emulation overall*/
+/*Also take into account, the ethernet base address for a MPS2 AN500 is 0xa0000000*/
+/*We can assume mapping something below that is safe*/
+
+
 void intermediateDriver_init(NICInfo *nd, uint32_t base, qemu_irq irq)
 {   
     /**
@@ -165,8 +202,96 @@ void intermediateDriver_init(NICInfo *nd, uint32_t base, qemu_irq irq)
 
     /*Connects an interrupt to the device*/
     sysbus_connect_irq(s, 0, irq);
+
+    /*Initiates another NIC to redirect stuff there*/
+    /*Exchange this for a generic thatr uses targetNIC*/
+    /*lan9118_init(nd, 0xf0000000, irq);*/
+
 }
 
-void read_memory_to_NIC
+/*Working but not reliable*/
 
-void read_NIC_to_memory
+/*static const MemoryRegionOps lan9118_mem_ops = {
+    .read = lan9118_readl,
+    .write = lan9118_writel,
+    .endianness = DEVICE_NATIVE_ENDIAN,
+};
+*/
+
+/*
+static uint64_t lan9118_readl(void *opaque, hwaddr offset,
+                              unsigned size)
+{
+    lan9118_state *s = (lan9118_state *)opaque;
+
+    //DPRINTF("Read reg 0x%02x\n", (int)offset);
+    if (offset <= RX_DATA_FIFO_PORT_LAST) {
+        // RX FIFO
+        return rx_fifo_pop(s);
+    }
+    switch (offset) {
+    case RX_STATUS_FIFO_PORT:
+        return rx_status_fifo_pop(s);
+    case RX_STATUS_FIFO_PEEK:
+        return s->rx_status_fifo[s->rx_status_fifo_head];
+    case TX_STATUS_FIFO_PORT:
+        return tx_status_fifo_pop(s);
+    case TX_STATUS_FIFO_PEEK:
+        return s->tx_status_fifo[s->tx_status_fifo_head];
+    case CSR_ID_REV:
+        return 0x01180001;
+    case CSR_IRQ_CFG:
+        return s->irq_cfg;
+    case CSR_INT_STS:
+        return s->int_sts;
+    case CSR_INT_EN:
+        return s->int_en;
+    case CSR_BYTE_TEST:
+        return 0x87654321;
+    case CSR_FIFO_INT:
+        return s->fifo_int;
+    case CSR_RX_CFG:
+        return s->rx_cfg;
+    case CSR_TX_CFG:
+        return s->tx_cfg;
+    case CSR_HW_CFG:
+        return s->hw_cfg;
+    case CSR_RX_DP_CTRL:
+        return 0;
+    case CSR_RX_FIFO_INF:
+        return (s->rx_status_fifo_used << 16) | (s->rx_fifo_used << 2);
+    case CSR_TX_FIFO_INF:
+        return (s->tx_status_fifo_used << 16)
+               | (s->tx_fifo_size - s->txp->fifo_used);
+    case CSR_PMT_CTRL:
+        return s->pmt_ctrl;
+    case CSR_GPIO_CFG:
+        return s->gpio_cfg;
+    case CSR_GPT_CFG:
+        return s->gpt_cfg;
+    case CSR_GPT_CNT:
+        return ptimer_get_count(s->timer);
+    case CSR_WORD_SWAP:
+        return s->word_swap;
+    case CSR_FREE_RUN:
+        return (qemu_clock_get_ns(QEMU_CLOCK_VIRTUAL) / 40) - s->free_timer_start;
+    case CSR_RX_DROP:
+        return 0;
+    case CSR_MAC_CSR_CMD:
+        return s->mac_cmd;
+    case CSR_MAC_CSR_DATA:
+        return s->mac_data;
+    case CSR_AFC_CFG:
+        return s->afc_cfg;
+    case CSR_E2P_CMD:
+        return s->e2p_cmd;
+    case CSR_E2P_DATA:
+        return s->e2p_data;
+    }
+    qemu_log_mask(LOG_GUEST_ERROR, "lan9118_read: Bad reg 0x%x\n", (int)offset);
+    return 0;
+}
+*/
+
+
+
