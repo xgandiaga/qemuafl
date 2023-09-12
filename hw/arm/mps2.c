@@ -422,6 +422,9 @@ static void mps2_common_init(MachineState *machine)
                                 mmc->fpga_type == FPGA_AN511 ? 47 : 13));
     } else {
         printf("dorito, no ethernet\n");
+        intermediateDriver_init(&nd_table[0], mmc->ethernet_base,
+                qdev_get_gpio_in(armv7m,
+                                mmc->fpga_type == FPGA_AN511 ? 47 : 13));
     }
 
     system_clock_scale = NANOSECONDS_PER_SECOND / SYSCLK_FRQ;

@@ -2,6 +2,7 @@
     "files.associations": {
         "*.def": "c",
         "*.inc": "c",
-        "mps2-scc.h": "c"
+        "mps2-scc.h": "c",
+        "lan9118.h": "c"
     }
 }
