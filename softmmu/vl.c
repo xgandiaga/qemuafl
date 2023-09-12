@@ -2801,6 +2801,9 @@ void qemu_init(int argc, char **argv, char **envp)
                     exit(1);
                 }
                 break;
+            case QEMU_OPTION_intermediateDriver:
+                printf("working");
+                break;
 #ifdef CONFIG_LIBISCSI
             case QEMU_OPTION_iscsi:
                 opts = qemu_opts_parse_noisily(qemu_find_opts("iscsi"),
